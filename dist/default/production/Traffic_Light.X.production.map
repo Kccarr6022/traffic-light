@@ -119,7 +119,7 @@ END GROUP
 .rela.plt
  *(.rela.plt)
 
-.text           0x0000000000000000       0x36
+.text           0x0000000000000000       0x72
  *(.vectors)
  *(.vectors)
  *(.progmem.gcc*)
@@ -166,10 +166,10 @@ END GROUP
  *(.init9)
  *(.init9)
  *(.text)
- .text          0x0000000000000000       0x36 build/default/production/main.o
-                0x0000000000000036                . = ALIGN (0x2)
+ .text          0x0000000000000000       0x72 build/default/production/main.o
+                0x0000000000000072                . = ALIGN (0x2)
  *(.text.*)
-                0x0000000000000036                . = ALIGN (0x2)
+                0x0000000000000072                . = ALIGN (0x2)
  *(.fini9)
  *(.fini9)
  *(.fini8)
@@ -190,9 +190,9 @@ END GROUP
  *(.fini1)
  *(.fini0)
  *(.fini0)
-                0x0000000000000036                _etext = .
+                0x0000000000000072                _etext = .
 
-.data           0x0000000000800100        0x0 load address 0x0000000000000036
+.data           0x0000000000800100        0x0 load address 0x0000000000000072
                 [!provide]                        PROVIDE (__data_start, .)
  *(.data)
  .data          0x0000000000800100        0x0 build/default/production/main.o
@@ -212,8 +212,8 @@ END GROUP
  *(.bss*)
  *(COMMON)
                 [!provide]                        PROVIDE (__bss_end, .)
-                0x0000000000000036                __data_load_start = LOADADDR (.data)
-                0x0000000000000036                __data_load_end = (__data_load_start + SIZEOF (.data))
+                0x0000000000000072                __data_load_start = LOADADDR (.data)
+                0x0000000000000072                __data_load_end = (__data_load_start + SIZEOF (.data))
 
 .noinit         0x0000000000800100        0x0
                 [!provide]                        PROVIDE (__noinit_start, .)
