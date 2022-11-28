@@ -4,6 +4,7 @@
     <logicalFolder name="HeaderFiles"
                    displayName="Header Files"
                    projectFiles="true">
+      <itemPath>main.s</itemPath>
     </logicalFolder>
     <logicalFolder name="LinkerScript"
                    displayName="Linker Files"
@@ -146,7 +147,7 @@
       </AVR-Global>
       <AVR-LD>
         <property key="eeprom-segment" value=""/>
-        <property key="exclude-standard-libraries" value="false"/>
+        <property key="exclude-standard-libraries" value="true"/>
         <property key="extra-lib-directories" value=""/>
         <property key="flash-segment" value=""/>
         <property key="generate-map-file" value="true"/>
@@ -157,7 +158,7 @@
         <property key="no-startup-files" value="false"/>
         <property key="omit-symbol-information" value="false"/>
         <property key="other-options" value=""/>
-        <property key="remove-unused-sections" value="true"/>
+        <property key="remove-unused-sections" value="false"/>
         <property key="rodata-writable" value="false"/>
         <property key="sram-segment" value=""/>
         <property key="v-printf" value="false"/>
