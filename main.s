@@ -19,30 +19,39 @@ setup:				; Set PB2 as OUTPUT
           sbi       DDRB, 2          ; Command: (sbi = Set bit in I/O register) Destination: (DDRB = A I/O register) Source: (bit_num = a number to make DDRB an output pin)
           cbi       PORTB,2        ; turns LED off (cbi = clear bit in I/O register)
           
-	; Red light
+	;Red light
 	sbi	DDRB, 3
 	cbi	PORTB, 3
 	
-	
-	
-	; Data Direction Register After
+	; Data Direction Register Before
 	; PB7	PB6	PB5	PB4	PB3	PB2	PB1	PB0
 	;x	x	x	x	1	1	1	x
 	
+	
 	;NORTH/SOUTH
 	
-
-
-
-
+	; Data Direction Register After
+	; PD0	PD1	PD2	PD3	PD4	PD5	PD6	PD7
+	;x	x	x	x	x	x	x	x
+	
+	;Green light
+	sbi	DDRD, 4
+	cbi	PORTD, 4
+	
+	;Yellow light
+	
+	
+	;Red light
+	
+	
 
 loop:
 turn_led_on:
-          sbi       PORTB,2        ; turn led on
+          sbi       PORTD,4        ; turn led on
           call      wait_25             
           
 turn_led_off:
-          cbi       PORTB,2        ; turn led off
+          cbi       PORTD,4        ; turn led off
           call      wait_25
           
           rjmp loop
