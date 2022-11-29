@@ -11,16 +11,17 @@ setup:				; Set PB2 as OUTPUT
 	;x	x	x	x	x	x	x	x
 	
 	;Green light
-	sbi	DDRD, 4
-	cbi	PORTD, 4
+	sbi	DDRD, PORTD4
+	cbi	PORTD, PORTD4
 	
 	;Yellow light
-	sbi	DDRD, 5
-	cbi	PORTD, 5
+	sbi	DDRD, PORTD5
+	cbi	PORTD, PORTD5
 	
 	;Red light
-	sbi	DDRD, 6
-	cbi	PORTD, 6
+	sbi	DDRD, PORTD6
+	cbi	PORTD, PORTD6
+	sbi       PORTD,PORTD6        ; turn RED N/S on
 	
 	; Data Direction Register After
 	; PD0	PD1	PD2	PD3	PD4	PD5	PD6	PD7
@@ -34,16 +35,17 @@ setup:				; Set PB2 as OUTPUT
 	;x	x	x	x	x	x	x	x
 	
 	;Green light
-	sbi	DDRB, 1
-	cbi	PORTB, 1
+	sbi	DDRB, PORTB1
+	cbi	PORTB, PORTB1
+	sbi       PORTB, PORTB1       ; turn RED N/S on
 	
 	;Yellow light
-          sbi       DDRB, 2          ; Command: (sbi = Set bit in I/O register) Destination: (DDRB = A I/O register) Source: (bit_num = a number to make DDRB an output pin)
-          cbi       PORTB,2        ; turns LED off (cbi = clear bit in I/O register)
+          sbi       DDRB, PORTB2          ; Command: (sbi = Set bit in I/O register) Destination: (DDRB = A I/O register) Source: (bit_num = a number to make DDRB an output pin)
+          cbi       PORTB, PORTB2        ; turns LED off (cbi = clear bit in I/O register)
           
 	;Red light
-	sbi	DDRB, 3
-	cbi	PORTB, 3
+	sbi	DDRB, PORTB3
+	cbi	PORTB, PORTB3
 	
 	; Data Direction Register Before
 	; PB7	PB6	PB5	PB4	PB3	PB2	PB1	PB0
@@ -55,22 +57,22 @@ loop:
 change_lanes:		; Change color for previous lane to green
 
 DAY_CYCLE:
-	sbi       PORTD,6        ; turn RED N/S on
-	sbi       PORTB,1        ; turn GREEN E/W on
 	call      wait_1500
-	cbi       PORTB,1        ; turn GREEN E/W on
-	sbi       PORTB,2        ; turn YELLOW E/W on
+	cbi       PORTB,PORTB1        ; turn GREEN E/W on
+	sbi       PORTB,PORTB2        ; turn YELLOW E/W on
 	call	wait_500
-	cbi       PORTB,2        ; turn GREEN E/W off
-	cbi       PORTD,6        ; turn RED N/S off
-	sbi       PORTB,3        ; turn RED E/W on
-	sbi       PORTD,4        ; turn GREEN N/S on
+	cbi       PORTB,PORTB2        ; turn GREEN E/W off
+	cbi       PORTD,PORTD6        ; turn RED N/S off
+	sbi       PORTB,PORTB3        ; turn RED E/W on
+	sbi       PORTD,PORTD4        ; turn GREEN N/S on
 	call      wait_1500
-	sbi	PORTD,5
-	cbi       PORTD,4        ; turn GREEN N/S off	
+	sbi	PORTD,PORTD5
+	cbi       PORTD,PORTD4        ; turn GREEN N/S off	
 	call	wait_500
-	cbi	PORTD,5
-	cbi	PORTB,3
+	cbi	PORTD,PORTD5
+	cbi	PORTB,PORTB3
+	sbi       PORTB,PORTB1        ; turn GREEN E/W on
+	sbi       PORTD,PORTD6        ; turn RED N/S on
 	
 ;          
 ;turn_led_off:
