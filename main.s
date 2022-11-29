@@ -53,46 +53,64 @@ setup:				; Set PB2 as OUTPUT
 	
 
 loop:
-	
-change_lanes:		; Change color for previous lane to green
+	rjmp	DAY_CYCLE
 
 DAY_CYCLE:
-	call      wait_1500
+	call      wait_10000
 	cbi       PORTB,PORTB1        ; turn GREEN E/W on
 	sbi       PORTB,PORTB2        ; turn YELLOW E/W on
-	call	wait_500
+	call	wait_5000
 	cbi       PORTB,PORTB2        ; turn GREEN E/W off
 	cbi       PORTD,PORTD6        ; turn RED N/S off
 	sbi       PORTB,PORTB3        ; turn RED E/W on
 	sbi       PORTD,PORTD4        ; turn GREEN N/S on
-	call      wait_1500
+	call      wait_10000
 	sbi	PORTD,PORTD5
 	cbi       PORTD,PORTD4        ; turn GREEN N/S off	
-	call	wait_500
+	call	wait_5000
 	cbi	PORTD,PORTD5
 	cbi	PORTB,PORTB3
 	sbi       PORTB,PORTB1        ; turn GREEN E/W on
 	sbi       PORTD,PORTD6        ; turn RED N/S on
 	
-;          
-;turn_led_off:
-;          cbi       PORTD,6        ; turn led off
-;	cbi       PORTB,1       ; turn led off
-;	cbi       PORTB,2       ; turn led off
-;	cbi       PORTB,3        ; turn RED N/S on
-;	cbi       PORTD,4        ; turn GREEN E/W on
-;	call      wait_1500
+	rjmp	DAY_CYCLE
+
+NIGHT_CYCLE:
+	call      wait_5000
+	cbi       PORTB,PORTB1        ; turn GREEN E/W on
+	sbi       PORTB,PORTB2        ; turn YELLOW E/W on
+	call	wait_2500
+	cbi       PORTB,PORTB2        ; turn GREEN E/W off
+	cbi       PORTD,PORTD6        ; turn RED N/S off
+	sbi       PORTB,PORTB3        ; turn RED E/W on
+	sbi       PORTD,PORTD4        ; turn GREEN N/S on
+	call      wait_5000
+	sbi	PORTD,PORTD5
+	cbi       PORTD,PORTD4        ; turn GREEN N/S off	
+	call	wait_2500
+	cbi	PORTD,PORTD5
+	cbi	PORTB,PORTB3
+	sbi       PORTB,PORTB1        ; turn GREEN E/W on
+	sbi       PORTD,PORTD6        ; turn RED N/S on
           
-          rjmp loop
+          rjmp	NIGHT_CYCLE
 
-	
-
-; Add wait_500_ms
-wait_500:
-	call	wait_250
-	call      wait_250
+wait_10000:
+	call	wait_5000
+	call	wait_5000
 	ret
-	
+		
+
+wait_5000:
+	call	wait_2500
+	call	wait_2500
+	ret
+
+wait_2500:
+	call	wait_1500
+	call	wait_500
+	call	wait_500
+	ret
 
 ; Add wait_1500_ms
 wait_1500:
@@ -100,6 +118,13 @@ wait_1500:
 	call	wait_500
 	call	wait_500
 	ret
+	
+; Add wait_500_ms
+wait_500:
+	call	wait_250
+	call      wait_250
+	ret
+	
 	
 ; wait 250 ms code
 wait_250:
