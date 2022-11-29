@@ -55,9 +55,9 @@ loop:
 change_lanes:		; Change color for previous lane to green
 
 DAY_CYCLE:
-          sbi       PORTD,6        ; turn RED N/S on
+	sbi       PORTD,6        ; turn RED N/S on
 	sbi       PORTB,1        ; turn GREEN E/W on
-          call      wait_1500
+	call      wait_1500
 	cbi       PORTB,1        ; turn GREEN E/W on
 	sbi       PORTB,2        ; turn YELLOW E/W on
 	call	wait_500
