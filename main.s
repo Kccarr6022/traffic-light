@@ -1,7 +1,87 @@
 #define __SFR_OFFSET 0
 #include <avr/io.h>
 	
-
+; vector table for interrupts
+;----------------------------------------------------
+BEGIN_VECTORS:			; Reset
+	jmp	END_VECTORS
+INT0addr:				; External Interrupt Request 0
+	RJMP	NIGHT_CYCLE
+	nop
+INT1addr:				; External Interrupt Request 1
+	nop
+	nop
+PCI0addr:				; Pin Change Interrupt Request 0
+	nop
+	nop
+PCI1addr:				; Pin Change Interrupt Request 0
+	nop
+	nop
+PCI2addr:				; Pin Change Interrupt Request 1
+	nop
+	nop
+WDTaddr:				; Watchdog Time-out Interrupt
+	nop
+	nop
+0C2Aaddr:				; Timer/Counter2 Compare Match A
+	nop
+	nop
+0C2Baddr:				; Timer/Counter2 Compare Match A
+	nop
+	nop
+0VF2addr:				; Timer/Counter2 Overflow
+	nop
+	nop
+ICP1addr:				; Timer/Counter1 Capture Event
+	nop
+	nop
+0C1Aaddr:				; Timer/Counter1 Compare Match A
+	nop
+	nop
+0C1Baddr:				; Timer/Counter1 Compare Match B
+	nop
+	nop
+0VF1addr:				; Timer/Counter1 Overflow
+	nop
+	nop
+0C0Aaddr:				; TimerCounter0 Compare Match A
+	nop
+	nop
+0C0Baddr:				; TimerCounter0 Compare Match B
+	nop
+	nop
+0VF0addr:				; Timer/Counter0 Overflow
+	nop
+	nop
+SPIaddr:				; SPI Serial Transfer Complete
+	nop
+	nop
+URXCaddr:				; USART Rx Complete
+	nop
+	nop
+UDREaddr:				; USART Data Register Empty
+	nop
+	nop
+UTXCaddr:				; USART Tx Complete
+	nop
+	nop
+ADCCaddr:				; ADC Conversion Complete
+	nop
+	nop
+ERDYaddr:				; EEPROM Ready
+	nop
+	nop
+ACIaddr:				; Analog Comparator
+	nop
+	nop
+TWIaddr:				; Two-wire Serial Interface
+	nop
+	nop
+SPMRaddr:				; Store Program Memory Read
+	nop
+	nop
+END_VECTORS:
+	
 setup:				; Set PB2 as OUTPUT
 	
 	;NORTH/SOUTH
