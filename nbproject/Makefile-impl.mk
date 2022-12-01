@@ -24,7 +24,7 @@ CLEAN_SUBPROJECTS=${CLEAN_SUBPROJECTS_${SUBPROJECTS}}
 
 
 # Project Name
-PROJECTNAME=Traffic light.X
+PROJECTNAME=Traffic Light.X
 
 # Active Configuration
 DEFAULTCONF=default

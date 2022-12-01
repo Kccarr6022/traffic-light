@@ -1,12 +1,13 @@
 #define __SFR_OFFSET 0
 #include <avr/io.h>
-	
+
+
 ; vector table for interrupts
 ;----------------------------------------------------
 BEGIN_VECTORS:			; Reset
-	jmp	END_VECTORS
-INT0addr:				; External Interrupt Request 0
-	RJMP	NIGHT_CYCLE
+	jmp	setup
+INT0addr:		; External Interrupt Request 0
+	jmp	NIGHT_CYCLE
 	nop
 INT1addr:				; External Interrupt Request 1
 	nop
@@ -23,34 +24,34 @@ PCI2addr:				; Pin Change Interrupt Request 1
 WDTaddr:				; Watchdog Time-out Interrupt
 	nop
 	nop
-0C2Aaddr:				; Timer/Counter2 Compare Match A
+OC2Aaddr:			; Timer/Counter2 Compare Match A
 	nop
 	nop
-0C2Baddr:				; Timer/Counter2 Compare Match A
+OC2Baddr:				; Timer/Counter2 Compare Match A
 	nop
 	nop
-0VF2addr:				; Timer/Counter2 Overflow
+OVF2addr:				; Timer/Counter2 Overflow
 	nop
 	nop
 ICP1addr:				; Timer/Counter1 Capture Event
 	nop
 	nop
-0C1Aaddr:				; Timer/Counter1 Compare Match A
+OC1Aaddr:				; Timer/Counter1 Compare Match A
 	nop
 	nop
-0C1Baddr:				; Timer/Counter1 Compare Match B
+OC1Baddr:				; Timer/Counter1 Compare Match B
 	nop
 	nop
-0VF1addr:				; Timer/Counter1 Overflow
+OVF1addr:				; Timer/Counter1 Overflow
 	nop
 	nop
-0C0Aaddr:				; TimerCounter0 Compare Match A
+OC0Aaddr:				; TimerCounter0 Compare Match A
 	nop
 	nop
-0C0Baddr:				; TimerCounter0 Compare Match B
+OC0Baddr:				; TimerCounter0 Compare Match B
 	nop
 	nop
-0VF0addr:				; Timer/Counter0 Overflow
+OVF0addr:				; Timer/Counter0 Overflow
 	nop
 	nop
 SPIaddr:				; SPI Serial Transfer Complete
@@ -65,8 +66,8 @@ UDREaddr:				; USART Data Register Empty
 UTXCaddr:				; USART Tx Complete
 	nop
 	nop
-ADCCaddr:				; ADC Conversion Complete
-	nop
+ADC0addr:				; ADC Conversion Complete
+	jmp	NIGHT_CYCLE
 	nop
 ERDYaddr:				; EEPROM Ready
 	nop
@@ -83,6 +84,7 @@ SPMRaddr:				; Store Program Memory Read
 END_VECTORS:
 	
 setup:				; Set PB2 as OUTPUT
+	SEI	; Enable interrupts globally
 	
 	;NORTH/SOUTH
 	
@@ -156,18 +158,18 @@ DAY_CYCLE:
 	rjmp	DAY_CYCLE
 
 NIGHT_CYCLE:
-	call      wait_5000
+	call      wait_250
 	cbi       PORTB,PORTB1        ; turn GREEN E/W on
 	sbi       PORTB,PORTB2        ; turn YELLOW E/W on
-	call	wait_2500
+	call	wait_250
 	cbi       PORTB,PORTB2        ; turn GREEN E/W off
 	cbi       PORTD,PORTD6        ; turn RED N/S off
 	sbi       PORTB,PORTB3        ; turn RED E/W on
 	sbi       PORTD,PORTD4        ; turn GREEN N/S on
-	call      wait_5000
+	call      wait_250
 	sbi	PORTD,PORTD5
 	cbi       PORTD,PORTD4        ; turn GREEN N/S off	
-	call	wait_2500
+	call	wait_250
 	cbi	PORTD,PORTD5
 	cbi	PORTB,PORTB3
 	sbi       PORTB,PORTB1        ; turn GREEN E/W on
