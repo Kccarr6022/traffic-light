@@ -6,10 +6,9 @@
 ;----------------------------------------------------
 BEGIN_VECTORS:			; Reset
 	jmp	setup
-INT0addr:		; External Interrupt Request 0
-	call	CYCLE_CHANGE
-	reti
-INT1addr:				; External Interrupt Request 1
+INT0addr:		; External Interrupt Request
+	jmp	CYCLE_CHANGE
+INT1addr:			; External Interrupt Request 1
 	nop
 	nop
 PCI0addr:				; Pin Change Interrupt Request 0
@@ -99,15 +98,15 @@ END_VECTORS:
 	.set	CHECK_CYCLE, 1
 setup:				; Set PB2 as OUTPUT
 	
-	ldi	R16, 0 ; Defaults to day cycle
+	ldi	r19, 0 ; Defaults to day cycle
 	
-	; Configure Timer1
-	clr	r20
-	sts	TCNT1H, r20
-	sts	TCNT1L, r20
-	
-	ldi	r20, 0b00000010
-	sts	TIMSK1, r20
+;	; Configure Timer0
+;	clr    r20
+;	sts    TCNT0H, r20
+;	sts    TCNT0L, r20
+;
+;	ldi    r20, 0b00000010
+;	sts    TIMSK0, r20
 	
 	
 	;PULL up IN
@@ -151,15 +150,16 @@ MAIN:
 	rjmp	DAY_CYCLE
 
 ;	Changes to night_cycle if in day_cycle or day_cycle if in night_cycle
-CHECK_CYCLE:
-	cpi	r16, 0
-	breq	CYCLE_CHANGE
-	ldi	r16, 0
-	ret
-	
+
 CYCLE_CHANGE:
-	ldi	r16, 1
-	ret
+	cpi	r19, 0
+	breq	CHANGE_R
+	ldi	r19, 0
+	reti
+	
+CHANGE_R:
+	ldi	r19, 1
+	reti
 
 DAY_CYCLE:
 	call      wait_2500
@@ -178,7 +178,9 @@ DAY_CYCLE:
 	cbi	EAST_WEST_OUT,ERED_LIGHT_PIN
 	sbi       EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
 	sbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S on
-	cpi	r16, 0
+	
+	; checks for state 
+	cpi	r19, 0
 	breq	DAY_CYCLE
 	rjmp	NIGHT_CYCLE
 
@@ -200,7 +202,10 @@ NIGHT_CYCLE:
 	sbi       EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
 	sbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S on
 	
-          rjmp	NIGHT_CYCLE
+	; checks for state
+          cpi	r19, 0
+	breq	DAY_CYCLE
+	rjmp	NIGHT_CYCLE
 
 
 	
@@ -253,3 +258,13 @@ wait_250_3:
           dec       r18
           brne      wait_250_1
           ret                           ; end
+	
+	
+;DELAY:
+;	out       TCCR0A, R20         ; Normal mode
+;	call      DAY_CYCLE
+;	out       TCCR0B, R20         ; start Timer0, Normal mode, int clk, no prescaler 
+;
+;AGAIN:
+;	sbis      TIFR0, TOV0         ; monitor TOV0 flag and skip if high
+;	rjmp      AGAIN
