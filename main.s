@@ -99,7 +99,7 @@ END_VECTORS:
 	.set	CHECK_CYCLE, 1
 setup:				; Set PB2 as OUTPUT
 	
-	ldi	R16, 5 ;IS_NIGHT_CYCLE
+	ldi	R16, 0 ; Defaults to day cycle
 	
 	; Configure Timer1
 	clr	r20
@@ -149,31 +149,38 @@ setup:				; Set PB2 as OUTPUT
 
 MAIN:
 	rjmp	DAY_CYCLE
+
+;	Changes to night_cycle if in day_cycle or day_cycle if in night_cycle
+CHECK_CYCLE:
+	cpi	r16, 0
+	breq	CYCLE_CHANGE
+	ldi	r16, 0
+	ret
 	
 CYCLE_CHANGE:
-	;ldi	IS_NIGHT_CYCLE, 0
-	
+	ldi	r16, 1
 	ret
 
 DAY_CYCLE:
-	call      wait_10000
+	call      wait_2500
 	cbi       EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
 	sbi       EAST_WEST_OUT,EYELLOW_LIGHT_PIN        ; turn YELLOW E/W on
-	call	wait_5000
+	call	wait_1500
 	cbi       EAST_WEST_OUT,EYELLOW_LIGHT_PIN        ; turn GREEN E/W off
-	cbi       PORTD,RED_LIGHT_PIN        ; turn RED N/S off
+	cbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S off
 	sbi       EAST_WEST_OUT,ERED_LIGHT_PIN        ; turn RED E/W on
-	sbi       PORTD,GREEN_LIGHT_PIN        ; turn GREEN N/S on
-	call      wait_10000
-	sbi	PORTD,YELLOW_LIGHT_PIN
-	cbi       PORTD,GREEN_LIGHT_PIN        ; turn GREEN N/S off	
-	call	wait_5000
-	cbi	PORTD,YELLOW_LIGHT_PIN
+	sbi       NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S on
+	call      wait_2500
+	sbi	NORTH_SOUTH_OUT,YELLOW_LIGHT_PIN
+	cbi       NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S off	
+	call	wait_1500
+	cbi	NORTH_SOUTH_OUT,YELLOW_LIGHT_PIN
 	cbi	EAST_WEST_OUT,ERED_LIGHT_PIN
 	sbi       EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
-	sbi       PORTD,RED_LIGHT_PIN        ; turn RED N/S on
-	
-	rjmp	DAY_CYCLE
+	sbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S on
+	cpi	r16, 0
+	breq	DAY_CYCLE
+	rjmp	NIGHT_CYCLE
 
 NIGHT_CYCLE:
 	call      wait_250
