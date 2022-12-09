@@ -7,8 +7,8 @@
 BEGIN_VECTORS:			; Reset
 	jmp	setup
 INT0addr:		; External Interrupt Request 0
-	jmp	NIGHT_CYCLE
-	nop
+	call	CYCLE_CHANGE
+	reti
 INT1addr:				; External Interrupt Request 1
 	nop
 	nop
@@ -67,7 +67,7 @@ UTXCaddr:				; USART Tx Complete
 	nop
 	nop
 ADC0addr:				; ADC Conversion Complete
-	jmp	NIGHT_CYCLE
+	nop;jmp	NIGHT_CYCLE
 	nop
 ERDYaddr:				; EEPROM Ready
 	nop
@@ -83,100 +83,121 @@ SPMRaddr:				; Store Program Memory Read
 	nop
 END_VECTORS:
 	
+	.set	NORTH_SOUTH_DIR, DDRD
+	.set	NORTH_SOUTH_OUT, PORTD
+	.set	NORTH_SOUTH_IN, PIND
+	.set	GREEN_LIGHT_PIN, 4
+	.set	YELLOW_LIGHT_PIN, 5
+	.set	RED_LIGHT_PIN, 6
+	.set	EAST_WEST_DIR, DDRB
+	.set	EAST_WEST_OUT, PORTB
+	.set	EAST_WEST_IN, PINB
+	.set	EGREEN_LIGHT_PIN, 1
+	.set	EYELLOW_LIGHT_PIN, 2
+	.set	ERED_LIGHT_PIN, 3
+	.set	IS_NIGHT_CYCLE, R16
+	.set	CHECK_CYCLE, 1
 setup:				; Set PB2 as OUTPUT
-	SEI	; Enable interrupts globally
 	
-	;NORTH/SOUTH
+	ldi	R16, 5 ;IS_NIGHT_CYCLE
 	
-	; Data Direction Register After
-	; PD0	PD1	PD2	PD3	PD4	PD5	PD6	PD7
-	;x	x	x	x	x	x	x	x
+	; Configure Timer1
+	clr	r20
+	sts	TCNT1H, r20
+	sts	TCNT1L, r20
+	
+	ldi	r20, 0b00000010
+	sts	TIMSK1, r20
+	
+	
+	;PULL up IN
+	cbi	DDRD, 2
+	sbi	PORTD, 2
+	
+	; configure button interrupt
+	sbi	EIMSK, INT0	; enable INT0 on D2 for button
+	ldi	r20, 0b00000010	;
+	sts	EICRA, r20	; set falling edge
+	
+	sei
 	
 	;Green light
-	sbi	DDRD, PORTD4
-	cbi	PORTD, PORTD4
+	sbi	NORTH_SOUTH_DIR, GREEN_LIGHT_PIN
+	cbi	NORTH_SOUTH_OUT, GREEN_LIGHT_PIN
 	
 	;Yellow light
-	sbi	DDRD, PORTD5
-	cbi	PORTD, PORTD5
+	sbi	NORTH_SOUTH_DIR, YELLOW_LIGHT_PIN
+	cbi	NORTH_SOUTH_OUT, YELLOW_LIGHT_PIN
 	
 	;Red light
-	sbi	DDRD, PORTD6
-	cbi	PORTD, PORTD6
-	sbi       PORTD,PORTD6        ; turn RED N/S on
-	
-	; Data Direction Register After
-	; PD0	PD1	PD2	PD3	PD4	PD5	PD6	PD7
-	;x	x	x	x	x	x	x	x
-	
-	
-	;EAST/WEST
-	
-	; Data Direction Register Before
-	; PB7	PB6	PB5	PB4	PB3	PB2	PB1	PB0
-	;x	x	x	x	x	x	x	x
+	sbi	NORTH_SOUTH_DIR, RED_LIGHT_PIN
+	cbi	NORTH_SOUTH_OUT, RED_LIGHT_PIN
+	sbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S on
 	
 	;Green light
-	sbi	DDRB, PORTB1
-	cbi	PORTB, PORTB1
-	sbi       PORTB, PORTB1       ; turn RED N/S on
+	sbi	EAST_WEST_DIR, EGREEN_LIGHT_PIN
+	sbi       EAST_WEST_OUT, EGREEN_LIGHT_PIN       ; turn RED N/S on
 	
 	;Yellow light
-          sbi       DDRB, PORTB2          ; Command: (sbi = Set bit in I/O register) Destination: (DDRB = A I/O register) Source: (bit_num = a number to make DDRB an output pin)
-          cbi       PORTB, PORTB2        ; turns LED off (cbi = clear bit in I/O register)
+          sbi       EAST_WEST_DIR, EYELLOW_LIGHT_PIN          ; Command: (sbi = Set bit in I/O register) Destination: (DDRB = A I/O register) Source: (bit_num = a number to make DDRB an output pin)
+          cbi       EAST_WEST_OUT, EYELLOW_LIGHT_PIN        ; turns LED off (cbi = clear bit in I/O register)
           
 	;Red light
-	sbi	DDRB, PORTB3
-	cbi	PORTB, PORTB3
-	
-	; Data Direction Register Before
-	; PB7	PB6	PB5	PB4	PB3	PB2	PB1	PB0
-	;x	x	x	x	1	1	1	x
-	
+	sbi	EAST_WEST_DIR, ERED_LIGHT_PIN
+	cbi	EAST_WEST_OUT, ERED_LIGHT_PIN
 
-loop:
+
+MAIN:
 	rjmp	DAY_CYCLE
+	
+CYCLE_CHANGE:
+	;ldi	IS_NIGHT_CYCLE, 0
+	
+	ret
 
 DAY_CYCLE:
 	call      wait_10000
-	cbi       PORTB,PORTB1        ; turn GREEN E/W on
-	sbi       PORTB,PORTB2        ; turn YELLOW E/W on
+	cbi       EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
+	sbi       EAST_WEST_OUT,EYELLOW_LIGHT_PIN        ; turn YELLOW E/W on
 	call	wait_5000
-	cbi       PORTB,PORTB2        ; turn GREEN E/W off
-	cbi       PORTD,PORTD6        ; turn RED N/S off
-	sbi       PORTB,PORTB3        ; turn RED E/W on
-	sbi       PORTD,PORTD4        ; turn GREEN N/S on
+	cbi       EAST_WEST_OUT,EYELLOW_LIGHT_PIN        ; turn GREEN E/W off
+	cbi       PORTD,RED_LIGHT_PIN        ; turn RED N/S off
+	sbi       EAST_WEST_OUT,ERED_LIGHT_PIN        ; turn RED E/W on
+	sbi       PORTD,GREEN_LIGHT_PIN        ; turn GREEN N/S on
 	call      wait_10000
-	sbi	PORTD,PORTD5
-	cbi       PORTD,PORTD4        ; turn GREEN N/S off	
+	sbi	PORTD,YELLOW_LIGHT_PIN
+	cbi       PORTD,GREEN_LIGHT_PIN        ; turn GREEN N/S off	
 	call	wait_5000
-	cbi	PORTD,PORTD5
-	cbi	PORTB,PORTB3
-	sbi       PORTB,PORTB1        ; turn GREEN E/W on
-	sbi       PORTD,PORTD6        ; turn RED N/S on
+	cbi	PORTD,YELLOW_LIGHT_PIN
+	cbi	EAST_WEST_OUT,ERED_LIGHT_PIN
+	sbi       EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
+	sbi       PORTD,RED_LIGHT_PIN        ; turn RED N/S on
 	
 	rjmp	DAY_CYCLE
 
 NIGHT_CYCLE:
 	call      wait_250
-	cbi       PORTB,PORTB1        ; turn GREEN E/W on
-	sbi       PORTB,PORTB2        ; turn YELLOW E/W on
+	cbi       EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
+	sbi       EAST_WEST_OUT,EYELLOW_LIGHT_PIN        ; turn YELLOW E/W on
 	call	wait_250
-	cbi       PORTB,PORTB2        ; turn GREEN E/W off
-	cbi       PORTD,PORTD6        ; turn RED N/S off
-	sbi       PORTB,PORTB3        ; turn RED E/W on
-	sbi       PORTD,PORTD4        ; turn GREEN N/S on
+	cbi       EAST_WEST_OUT,EYELLOW_LIGHT_PIN        ; turn GREEN E/W off
+	cbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S off
+	sbi       EAST_WEST_OUT,ERED_LIGHT_PIN        ; turn RED E/W on
+	sbi       NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S on
 	call      wait_250
-	sbi	PORTD,PORTD5
-	cbi       PORTD,PORTD4        ; turn GREEN N/S off	
+	sbi	NORTH_SOUTH_OUT,YELLOW_LIGHT_PIN
+	cbi       NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S off	
 	call	wait_250
-	cbi	PORTD,PORTD5
-	cbi	PORTB,PORTB3
-	sbi       PORTB,PORTB1        ; turn GREEN E/W on
-	sbi       PORTD,PORTD6        ; turn RED N/S on
-          
+	cbi	NORTH_SOUTH_OUT,YELLOW_LIGHT_PIN
+	cbi	EAST_WEST_OUT,ERED_LIGHT_PIN
+	sbi       EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
+	sbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S on
+	
           rjmp	NIGHT_CYCLE
 
+
+	
+	
 wait_10000:
 	call	wait_5000
 	call	wait_5000
