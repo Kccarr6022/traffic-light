@@ -9,8 +9,7 @@ BEGIN_VECTORS:			; Reset
 INT0addr:		; External Interrupt Request
 	jmp	CYCLE_CHANGE
 INT1addr:			; External Interrupt Request 1
-	nop
-	nop
+	jmp	CROSSWALK_ON
 PCI0addr:				; Pin Change Interrupt Request 0
 	nop
 	nop
@@ -91,32 +90,32 @@ END_VECTORS:
 	.set	EAST_WEST_DIR, DDRB
 	.set	EAST_WEST_OUT, PORTB
 	.set	EAST_WEST_IN, PINB
+	.set	ECROSS_LIGHT_PIN_GO, 0
+	.set	ECROSS_LIGHT_PIN_STOP, 4
 	.set	EGREEN_LIGHT_PIN, 1
 	.set	EYELLOW_LIGHT_PIN, 2
 	.set	ERED_LIGHT_PIN, 3
-	.set	IS_NIGHT_CYCLE, R16
+	.set	IS_NIGHT_CYCLE, R19
 	.set	CHECK_CYCLE, 1
+	.set	DAYLIGHT_IN, 2
+	.set	IS_DAY, 0
+	.set	IS_NIGHT, 1
 setup:				; Set PB2 as OUTPUT
 	
-	ldi	r19, 0 ; Defaults to day cycle
-	
-;	; Configure Timer0
-;	clr    r20
-;	sts    TCNT0H, r20
-;	sts    TCNT0L, r20
-;
-;	ldi    r20, 0b00000010
-;	sts    TIMSK0, r20
+	ldi	R19, IS_DAY ; Defaults to day cycle
 	
 	
-	;PULL up IN
-	cbi	DDRD, 2
-	sbi	PORTD, 2
+	;PULL up IN for port D2
+	cbi	DDRD, DAYLIGHT_IN
+	sbi	PORTD, DAYLIGHT_IN
+	sbi	DDRD, 3
+	sbi	PORTD, 3
 	
 	; configure button interrupt
 	sbi	EIMSK, INT0	; enable INT0 on D2 for button
-	ldi	r20, 0b00000010	;
-	sts	EICRA, r20	; set falling edge
+	sbi	EIMSK, INT1	; enable INT0 on D2 for button
+	ldi	r20, 0b00001001	;
+	sts	EICRA, r20	; set logical changes
 	
 	sei
 	
@@ -130,7 +129,6 @@ setup:				; Set PB2 as OUTPUT
 	
 	;Red light
 	sbi	NORTH_SOUTH_DIR, RED_LIGHT_PIN
-	cbi	NORTH_SOUTH_OUT, RED_LIGHT_PIN
 	sbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S on
 	
 	;Green light
@@ -144,6 +142,15 @@ setup:				; Set PB2 as OUTPUT
 	;Red light
 	sbi	EAST_WEST_DIR, ERED_LIGHT_PIN
 	cbi	EAST_WEST_OUT, ERED_LIGHT_PIN
+	
+	sbi	EAST_WEST_DIR, ECROSS_LIGHT_PIN_GO
+	cbi	EAST_WEST_OUT, ECROSS_LIGHT_PIN_GO
+	
+	sbi	EAST_WEST_DIR, ECROSS_LIGHT_PIN_STOP
+	sbi	EAST_WEST_OUT, ECROSS_LIGHT_PIN_STOP
+	
+	
+	
 
 
 MAIN:
@@ -152,13 +159,13 @@ MAIN:
 ;	Changes to night_cycle if in day_cycle or day_cycle if in night_cycle
 
 CYCLE_CHANGE:
-	cpi	r19, 0
+	cpi	R19, IS_DAY
 	breq	CHANGE_R
-	ldi	r19, 0
+	ldi	R19, IS_DAY
 	reti
 	
 CHANGE_R:
-	ldi	r19, 1
+	ldi	R19, IS_NIGHT
 	reti
 
 DAY_CYCLE:
@@ -170,6 +177,8 @@ DAY_CYCLE:
 	cbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S off
 	sbi       EAST_WEST_OUT,ERED_LIGHT_PIN        ; turn RED E/W on
 	sbi       NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S on
+	cbi	EIMSK, INT1	; enable INT1 on D3 for button
+	call	CROSSWALK_OFF
 	call      wait_2500
 	sbi	NORTH_SOUTH_OUT,YELLOW_LIGHT_PIN
 	cbi       NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S off	
@@ -178,9 +187,10 @@ DAY_CYCLE:
 	cbi	EAST_WEST_OUT,ERED_LIGHT_PIN
 	sbi       EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
 	sbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S on
+	sbi	EIMSK, INT1	; disable INT1 on D3 for button
 	
 	; checks for state 
-	cpi	r19, 0
+	cpi	R19, IS_DAY
 	breq	DAY_CYCLE
 	rjmp	NIGHT_CYCLE
 
@@ -193,6 +203,8 @@ NIGHT_CYCLE:
 	cbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S off
 	sbi       EAST_WEST_OUT,ERED_LIGHT_PIN        ; turn RED E/W on
 	sbi       NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S on
+	cbi	EIMSK, INT1	; enable INT1 on D3 for button
+	call	CROSSWALK_OFF
 	call      wait_250
 	sbi	NORTH_SOUTH_OUT,YELLOW_LIGHT_PIN
 	cbi       NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S off	
@@ -201,9 +213,10 @@ NIGHT_CYCLE:
 	cbi	EAST_WEST_OUT,ERED_LIGHT_PIN
 	sbi       EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
 	sbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S on
+	sbi	EIMSK, INT1	; disable INT1 on D3 for button
 	
 	; checks for state
-          cpi	r19, 0
+          cpi	R19, IS_DAY
 	breq	DAY_CYCLE
 	rjmp	NIGHT_CYCLE
 
@@ -259,12 +272,60 @@ wait_250_3:
           brne      wait_250_1
           ret                           ; end
 	
+CROSSWALK_ON:
+	sbi       EAST_WEST_OUT,ECROSS_LIGHT_PIN_GO        ; turn CROSSWALK GO N/S on
+	cbi	EAST_WEST_OUT,ECROSS_LIGHT_PIN_STOP	; turn CROSSWALK STOP N/S off
+	reti
 	
-;DELAY:
-;	out       TCCR0A, R20         ; Normal mode
-;	call      DAY_CYCLE
-;	out       TCCR0B, R20         ; start Timer0, Normal mode, int clk, no prescaler 
+	
+CROSSWALK_OFF:
+	cbi       EAST_WEST_OUT,ECROSS_LIGHT_PIN_GO        ; turn CROSSWALK GO N/S off
+	sbi	EAST_WEST_OUT,ECROSS_LIGHT_PIN_STOP	; turn CROSSWALK STOP N/S on
+	ret
+
+
 ;
-;AGAIN:
-;	sbis      TIFR0, TOV0         ; monitor TOV0 flag and skip if high
-;	rjmp      AGAIN
+;CrosswalkTimer:
+;	clr	r20
+;	sts	TCNT1H, r20
+;	sts	TCNT1L, r20
+;	; set alarm tone
+;	
+;	sts	OCR1AH, r20
+;	sts	OCR1AL, r20
+;	; config phase correct 8-bit pwm (mode 1)
+;	ldi	r20, (1<<WGM10)
+;	; config inverted pwm mode
+;	ori	r20, (1<<COM1A1)|(1<<COM1A0)
+;	sts	TCCR1A, r20
+;	ldi	r20, (1<<CS10) ; clock no prescaler
+;	sts	TCCR1B, r20
+;	ret
+;	
+;CrosswalkDelay:
+;; set 10ms delay
+;	ldi	r20, 0xFD
+;	sts	TCNT1H, r20
+;	ldi	r20, 0x8F
+;	sts	TCNT1L, r20
+;; config normal mode
+;	clr	r20
+;	sts	TCCR1A, r20
+;; config clock w/ 256 prescaler
+;	ldi	r20, (1<<CS12)
+;	sts	TCCR1B, r20
+;
+;; wait for Timer overflow
+;	ret
+;CrosswalkDelay0v:			; Timer overflow flag in normal mode
+;	sbis	TFIR1, TOV1
+;	rjmp	CrosswalkDelay0v
+;	
+;	; turn timer delay off
+;	clr	r20
+;	sts	TCCR1B, r20
+;	
+;	; Clear overflow flag
+;	sbi	TIFR1, TOV1	; Write 1 to flag to clear it
+;	
+;	ret
