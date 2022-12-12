@@ -196,24 +196,24 @@ DAY_CYCLE:
 	rjmp	NIGHT_CYCLE
 
 NIGHT_CYCLE:
-	call      wait_250
-	cbi       EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
-	sbi       EAST_WEST_OUT,EYELLOW_LIGHT_PIN        ; turn YELLOW E/W on
 	call	wait_250
-	cbi       EAST_WEST_OUT,EYELLOW_LIGHT_PIN        ; turn GREEN E/W off
-	cbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S off
-	sbi       EAST_WEST_OUT,ERED_LIGHT_PIN        ; turn RED E/W on
-	sbi       NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S on
+	cbi	EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
+	sbi	EAST_WEST_OUT,EYELLOW_LIGHT_PIN        ; turn YELLOW E/W on
+	call	wait_250
+	cbi	EAST_WEST_OUT,EYELLOW_LIGHT_PIN        ; turn GREEN E/W off
+	cbi	NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S off
+	sbi	EAST_WEST_OUT,ERED_LIGHT_PIN        ; turn RED E/W on
+	sbi	NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S on
 	cbi	EIMSK, INT1	; enable INT1 on D3 for button
 	call	CROSSWALK_OFF
-	call      wait_250
+	call	wait_250
 	sbi	NORTH_SOUTH_OUT,YELLOW_LIGHT_PIN
-	cbi       NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S off	
+	cbi	NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S off	
 	call	wait_250
 	cbi	NORTH_SOUTH_OUT,YELLOW_LIGHT_PIN
 	cbi	EAST_WEST_OUT,ERED_LIGHT_PIN
-	sbi       EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
-	sbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S on
+	sbi	EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
+	sbi	NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S on
 	sbi	EIMSK, INT1	; disable INT1 on D3 for button
 	
 	; checks for state
