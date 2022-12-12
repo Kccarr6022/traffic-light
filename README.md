@@ -16,4 +16,3 @@ Written in AVR Assembly
 - Kaden Carr
 - Megan Falge
 - Gregory Bateham
-- 
