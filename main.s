@@ -6,9 +6,9 @@
 ;----------------------------------------------------
 BEGIN_VECTORS:			; Reset
 	jmp	setup
-INT0addr:		; External Interrupt Request
+INT0addr:				; External Interrupt Request
 	jmp	CYCLE_CHANGE
-INT1addr:			; External Interrupt Request 1
+INT1addr:				; External Interrupt Request 1
 	jmp	CROSSWALK_ON
 PCI0addr:				; Pin Change Interrupt Request 0
 	nop
@@ -22,7 +22,7 @@ PCI2addr:				; Pin Change Interrupt Request 1
 WDTaddr:				; Watchdog Time-out Interrupt
 	nop
 	nop
-OC2Aaddr:			; Timer/Counter2 Compare Match A
+OC2Aaddr:				; Timer/Counter2 Compare Match A
 	nop
 	nop
 OC2Baddr:				; Timer/Counter2 Compare Match A
@@ -65,7 +65,7 @@ UTXCaddr:				; USART Tx Complete
 	nop
 	nop
 ADC0addr:				; ADC Conversion Complete
-	nop;jmp	NIGHT_CYCLE
+	nop
 	nop
 ERDYaddr:				; EEPROM Ready
 	nop
@@ -190,7 +190,7 @@ DAY_CYCLE:
 	sbi	NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S on
 	sbi	EIMSK, INT1	; disable INT1 on D3 for button
 	
-	; checks for state 
+	; checks and updates state 
 	cpi	R19, IS_DAY
 	breq	DAY_CYCLE
 	rjmp	NIGHT_CYCLE
@@ -216,7 +216,7 @@ NIGHT_CYCLE:
 	sbi	NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S on
 	sbi	EIMSK, INT1	; disable INT1 on D3 for button
 	
-	; checks for state
+	; checks and updates state
 	cpi	R19, IS_DAY
 	breq	DAY_CYCLE
 	rjmp	NIGHT_CYCLE
