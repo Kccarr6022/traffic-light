@@ -1,4 +1,4 @@
-# Simulated Traffic Light in AVR Assembly Learning Project
+# Simulated Traffic Light- AVR Assembly Learning Project
 
 https://user-images.githubusercontent.com/71856219/206941586-ea378f40-5022-490b-a37e-af6675e9ada1.mp4
 
