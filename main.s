@@ -92,6 +92,7 @@ END_VECTORS:
 	.set	EAST_WEST_IN, PINB
 	.set	ECROSS_LIGHT_PIN_GO, 0
 	.set	ECROSS_LIGHT_PIN_STOP, 4
+	.set	ECROSSWALK_BUTTON, 3
 	.set	EGREEN_LIGHT_PIN, 1
 	.set	EYELLOW_LIGHT_PIN, 2
 	.set	ERED_LIGHT_PIN, 3
@@ -108,13 +109,13 @@ setup:				; Set PB2 as OUTPUT
 	;PULL up IN for port D2
 	cbi	DDRD, DAYLIGHT_IN
 	sbi	PORTD, DAYLIGHT_IN
-	sbi	DDRD, 3
-	sbi	PORTD, 3
+	sbi	DDRD, ECROSSWALK_BUTTON
+	sbi	PORTD, ECROSSWALK_BUTTON
 	
 	; configure button interrupt
 	sbi	EIMSK, INT0	; enable INT0 on D2 for button
 	sbi	EIMSK, INT1	; enable INT0 on D2 for button
-	ldi	r20, 0b00001001	;
+	ldi	r20, 0b00001001	; load to r20
 	sts	EICRA, r20	; set logical changes
 	
 	sei
@@ -252,6 +253,35 @@ wait_500:
 	call	wait_250
 	call      wait_250
 	ret
+
+;wait_250:
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	call	CrosswalkDelay
+;	ret
+	
 	
 	
 ; wait 250 ms code
@@ -284,48 +314,36 @@ CROSSWALK_OFF:
 	ret
 
 
-;
-;CrosswalkTimer:
-;	clr	r20
-;	sts	TCNT1H, r20
-;	sts	TCNT1L, r20
-;	; set alarm tone
-;	
-;	sts	OCR1AH, r20
-;	sts	OCR1AL, r20
-;	; config phase correct 8-bit pwm (mode 1)
-;	ldi	r20, (1<<WGM10)
-;	; config inverted pwm mode
-;	ori	r20, (1<<COM1A1)|(1<<COM1A0)
-;	sts	TCCR1A, r20
-;	ldi	r20, (1<<CS10) ; clock no prescaler
-;	sts	TCCR1B, r20
-;	ret
-;	
-;CrosswalkDelay:
-;; set 10ms delay
-;	ldi	r20, 0xFD
-;	sts	TCNT1H, r20
-;	ldi	r20, 0x8F
-;	sts	TCNT1L, r20
-;; config normal mode
-;	clr	r20
-;	sts	TCCR1A, r20
-;; config clock w/ 256 prescaler
-;	ldi	r20, (1<<CS12)
-;	sts	TCCR1B, r20
-;
-;; wait for Timer overflow
-;	ret
-;CrosswalkDelay0v:			; Timer overflow flag in normal mode
-;	sbis	TFIR1, TOV1
-;	rjmp	CrosswalkDelay0v
-;	
-;	; turn timer delay off
-;	clr	r20
-;	sts	TCCR1B, r20
-;	
-;	; Clear overflow flag
-;	sbi	TIFR1, TOV1	; Write 1 to flag to clear it
-;	
-;	ret
+
+CrosswalkTimer:
+	clr	r20
+	sts	TCNT1H, r20
+	sts	TCNT1L, r20
+	; set alarm tone
+	
+	sts	OCR1AH, r20
+	sts	OCR1AL, r20
+	; config phase correct 8-bit pwm (mode 1)
+	ldi	r20, (1<<WGM10)
+	; config inverted pwm mode
+	ori	r20, (1<<COM1A1)|(1<<COM1A0)
+	sts	TCCR1A, r20
+	ldi	r20, (1<<CS10) ; clock no prescaler
+	sts	TCCR1B, r20
+	ret
+	
+CrosswalkDelay:
+; set 10ms delay
+	ldi	r20, 0xFD
+	sts	TCNT1H, r20
+	ldi	r20, 0x8F
+	sts	TCNT1L, r20
+; config normal mode
+	clr	r20
+	sts	TCCR1A, r20
+; config clock w/ 256 prescaler
+	ldi	r20, (1<<CS12)
+	sts	TCCR1B, r20
+
+; wait for Timer overflow
+	ret
