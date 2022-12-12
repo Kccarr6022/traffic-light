@@ -137,8 +137,8 @@ setup:				; Set PB2 as OUTPUT
 	sbi       EAST_WEST_OUT, EGREEN_LIGHT_PIN       ; turn RED N/S on
 	
 	;Yellow light
-          sbi       EAST_WEST_DIR, EYELLOW_LIGHT_PIN          ; Command: (sbi = Set bit in I/O register) Destination: (DDRB = A I/O register) Source: (bit_num = a number to make DDRB an output pin)
-          cbi       EAST_WEST_OUT, EYELLOW_LIGHT_PIN        ; turns LED off (cbi = clear bit in I/O register)
+	sbi       EAST_WEST_DIR, EYELLOW_LIGHT_PIN          ; Command: (sbi = Set bit in I/O register) Destination: (DDRB = A I/O register) Source: (bit_num = a number to make DDRB an output pin)
+	cbi       EAST_WEST_OUT, EYELLOW_LIGHT_PIN        ; turns LED off (cbi = clear bit in I/O register)
           
 	;Red light
 	sbi	EAST_WEST_DIR, ERED_LIGHT_PIN
@@ -170,24 +170,24 @@ CHANGE_R:
 	reti
 
 DAY_CYCLE:
-	call      wait_2500
-	cbi       EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
-	sbi       EAST_WEST_OUT,EYELLOW_LIGHT_PIN        ; turn YELLOW E/W on
+	call	wait_2500
+	cbi	EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
+	sbi	EAST_WEST_OUT,EYELLOW_LIGHT_PIN        ; turn YELLOW E/W on
 	call	wait_1500
-	cbi       EAST_WEST_OUT,EYELLOW_LIGHT_PIN        ; turn GREEN E/W off
-	cbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S off
-	sbi       EAST_WEST_OUT,ERED_LIGHT_PIN        ; turn RED E/W on
-	sbi       NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S on
+	cbi	EAST_WEST_OUT,EYELLOW_LIGHT_PIN        ; turn GREEN E/W off
+	cbi	NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S off
+	sbi	EAST_WEST_OUT,ERED_LIGHT_PIN        ; turn RED E/W on
+	sbi	NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S on
 	cbi	EIMSK, INT1	; enable INT1 on D3 for button
 	call	CROSSWALK_OFF
-	call      wait_2500
+	call	wait_2500
 	sbi	NORTH_SOUTH_OUT,YELLOW_LIGHT_PIN
-	cbi       NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S off	
+	cbi	NORTH_SOUTH_OUT,GREEN_LIGHT_PIN        ; turn GREEN N/S off	
 	call	wait_1500
 	cbi	NORTH_SOUTH_OUT,YELLOW_LIGHT_PIN
 	cbi	EAST_WEST_OUT,ERED_LIGHT_PIN
-	sbi       EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
-	sbi       NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S on
+	sbi	EAST_WEST_OUT,EGREEN_LIGHT_PIN        ; turn GREEN E/W on
+	sbi	NORTH_SOUTH_OUT,RED_LIGHT_PIN        ; turn RED N/S on
 	sbi	EIMSK, INT1	; disable INT1 on D3 for button
 	
 	; checks for state 
@@ -217,7 +217,7 @@ NIGHT_CYCLE:
 	sbi	EIMSK, INT1	; disable INT1 on D3 for button
 	
 	; checks for state
-          cpi	R19, IS_DAY
+	cpi	R19, IS_DAY
 	breq	DAY_CYCLE
 	rjmp	NIGHT_CYCLE
 
