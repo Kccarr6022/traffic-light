@@ -257,35 +257,6 @@ wait_500:
 	call	wait_250
 	call      wait_250
 	ret
-
-;wait_250:
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	call	CrosswalkDelay
-;	ret
-	
 	
 	
 ; wait 250 ms code
@@ -317,37 +288,37 @@ CROSSWALK_OFF:
 	sbi	EAST_WEST_OUT,ECROSS_LIGHT_PIN_STOP	; turn CROSSWALK STOP N/S on
 	ret
 
-
-
-CrosswalkTimer:
-	clr	r20
-	sts	TCNT1H, r20
-	sts	TCNT1L, r20
-	; set alarm tone
-	
-	sts	OCR1AH, r20
-	sts	OCR1AL, r20
-	; config phase correct 8-bit pwm (mode 1)
-	ldi	r20, (1<<WGM10)
-	; config inverted pwm mode
-	ori	r20, (1<<COM1A1)|(1<<COM1A0)
-	sts	TCCR1A, r20
-	ldi	r20, (1<<CS10) ; clock no prescaler
-	sts	TCCR1B, r20
-	ret
-	
-CrosswalkDelay:
-; set 10ms delay
-	ldi	r20, 0xFD
-	sts	TCNT1H, r20
-	ldi	r20, 0x8F
-	sts	TCNT1L, r20
-; config normal mode
-	clr	r20
-	sts	TCCR1A, r20
-; config clock w/ 256 prescaler
-	ldi	r20, (1<<CS12)
-	sts	TCCR1B, r20
-
-; wait for Timer overflow
-	ret
+; Timer interrupt not implemented
+;
+;CrosswalkTimer:
+;	clr	r20
+;	sts	TCNT1H, r20
+;	sts	TCNT1L, r20
+;	; set alarm tone
+;	
+;	sts	OCR1AH, r20
+;	sts	OCR1AL, r20
+;	; config phase correct 8-bit pwm (mode 1)
+;	ldi	r20, (1<<WGM10)
+;	; config inverted pwm mode
+;	ori	r20, (1<<COM1A1)|(1<<COM1A0)
+;	sts	TCCR1A, r20
+;	ldi	r20, (1<<CS10) ; clock no prescaler
+;	sts	TCCR1B, r20
+;	ret
+;	
+;CrosswalkDelay:
+;; set 10ms delay
+;	ldi	r20, 0xFD
+;	sts	TCNT1H, r20
+;	ldi	r20, 0x8F
+;	sts	TCNT1L, r20
+;; config normal mode
+;	clr	r20
+;	sts	TCCR1A, r20
+;; config clock w/ 256 prescaler
+;	ldi	r20, (1<<CS12)
+;	sts	TCCR1B, r20
+;
+;; wait for Timer overflow
+;	ret
